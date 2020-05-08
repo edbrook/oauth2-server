@@ -1,17 +1,20 @@
 package uk.co.edbrook.oauth2.domain;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
+import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -19,48 +22,71 @@ public class AccessTokenServiceImpl implements AccessTokenService {
 
     private final OAuthServerProperties config;
     private final ObjectMapper mapper;
+    private final KeyPairService keyPairService;
 
     @Override
     public AccessToken generateToken(String username) {
         try {
-            JWSObject jwsObject = new JWSObject(
+//            JWSObject jwsObject = new JWSObject(
+//                    createJwtHeader(),
+//                    createPayload(username));
+
+//            jwsObject.sign(new RSASSASigner(keyPairService.getRsaPrivateKey()));
+
+            SignedJWT jwt = new SignedJWT(
                     createJwtHeader(),
-                    createPayload(username));
+                    createClaims(username));
 
-            jwsObject.sign(new MACSigner(config.getAccessTokenSecret()));
+            var signer = new RSASSASigner(keyPairService.getRsaPrivateKey());
 
-            var token = jwsObject.serialize();
+            jwt.sign(signer);
+
+            var token = jwt.serialize();
 
             return AccessToken.builder()
                     .accessToken(token)
                     .tokenType("bearer")
                     .expiresIn(config.getAccessTokenTimeout())
                     .build();
-        } catch (JOSEException | JsonProcessingException e) {
+//        } catch (JOSEException | JsonProcessingException e) {
+        } catch (JOSEException e) {
+            System.out.println(e);
             throw new AccessTokenException(e);
         }
     }
 
     private JWSHeader createJwtHeader() {
-        return new JWSHeader(JWSAlgorithm.HS256, JOSEObjectType.JWT,
-                null, null, null, null, null,
-                null, null, null, null, null, null);
+        return new JWSHeader.Builder(JWSAlgorithm.RS256)
+                .type(JOSEObjectType.JWT)
+                .keyID(keyPairService.getKeyId())
+                .build();
     }
 
-    private Payload createPayload(String username) throws JsonProcessingException {
-        var claims = createClaims(username);
-        return new Payload(mapper.writeValueAsBytes(claims));
-    }
-
-    private Map<String, ? extends Serializable> createClaims(String username) {
+    private JWTClaimsSet createClaims(String username) {
         Instant iat = Instant.now().truncatedTo(ChronoUnit.MILLIS);
         Instant exp = iat.plus(Duration.ofSeconds(config.getAccessTokenTimeout()));
 
-        return Map.of(
-                "sub", username,
-                "iat", iat.toEpochMilli() / 1000,
-                "exp", exp.toEpochMilli() / 1000,
-                "uk.co.edbrook.oauth2", "access",
-                "scope", "all");
+        return new JWTClaimsSet.Builder()
+                .subject(username)
+                .issueTime(new Date(iat.toEpochMilli()))
+                .expirationTime(new Date(exp.toEpochMilli()))
+                .build();
     }
+
+//    private Payload createPayload(String username) throws JsonProcessingException {
+//        var claims = createClaims(username);
+//        return new Payload(mapper.writeValueAsBytes(claims));
+//    }
+
+//    private Map<String, ? extends Serializable> createClaims(String username) {
+//        Instant iat = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+//        Instant exp = iat.plus(Duration.ofSeconds(config.getAccessTokenTimeout()));
+//
+//        return Map.of(
+//                "sub", username,
+//                "iat", iat.toEpochMilli() / 1000,
+//                "exp", exp.toEpochMilli() / 1000,
+//                "uk.co.edbrook.oauth2", "access",
+//                "scope", "all");
+//    }
 }

@@ -20,9 +20,13 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/h2-console/**").hasRole("ADMIN")
+                .antMatchers("/oauth2/pub").permitAll()
                 .antMatchers("/api/register").permitAll()
                 .antMatchers("/api/login").permitAll()
                 .antMatchers("/**").authenticated();
+
+        http.oauth2ResourceServer()
+                .jwt();
 
         http.csrf().ignoringAntMatchers(
                 "/h2-console/**",

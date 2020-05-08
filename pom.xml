@@ -36,12 +36,13 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-jose</artifactId>
+            <groupId>com.google.crypto.tink</groupId>
+            <artifactId>tink</artifactId>
+            <version>1.4.0-rc1</version>
         </dependency>
 
         <dependency>
