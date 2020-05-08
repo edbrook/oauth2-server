@@ -60,6 +60,7 @@ public class AccessTokenServiceImpl implements AccessTokenService {
                 .subject(username)
                 .issueTime(new Date(iat.toEpochMilli()))
                 .expirationTime(new Date(exp.toEpochMilli()))
+                .claim("scope", "all")
                 .build();
     }
 }
