@@ -1,4 +1,4 @@
-package uk.co.edbrook.oauth2.domain;
+package uk.co.edbrook.oauth2.domain.account;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package uk.co.edbrook.oauth2.web;
+package uk.co.edbrook.oauth2.web.account;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.co.edbrook.oauth2.domain.AccessToken;
 import uk.co.edbrook.oauth2.domain.AccessTokenException;
-import uk.co.edbrook.oauth2.domain.LoginService;
+import uk.co.edbrook.oauth2.domain.account.LoginService;
 
 import javax.security.auth.login.CredentialException;
 

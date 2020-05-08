@@ -1,4 +1,4 @@
-package uk.co.edbrook.oauth2.web;
+package uk.co.edbrook.oauth2.web.account;
 
 import lombok.Value;
 

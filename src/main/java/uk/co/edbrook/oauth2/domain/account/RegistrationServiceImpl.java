@@ -1,4 +1,4 @@
-package uk.co.edbrook.oauth2.domain;
+package uk.co.edbrook.oauth2.domain.account;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
