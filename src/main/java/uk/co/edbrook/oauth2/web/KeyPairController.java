@@ -21,6 +21,8 @@ public class KeyPairController {
 
     @GetMapping(value = "/pub", produces = "application/jwk-set+json")
     public Map<String, List<JSONObject>> getPublicKey() {
+        log.info("method=getPublicKey");
+
         return Map.of("keys",
                 List.of(keyPairService.getRsaPublicKey().toJSONObject()));
     }
